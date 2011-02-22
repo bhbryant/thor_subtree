@@ -4,11 +4,78 @@ require "rubygems"
 require "thor"
 
 
-class App < Thor
-  desc "test APP_NAME", "install one of the available apps"
-  def test(name)
-	puts name
+class Subtree < Thor
+  include Thor::Actions
+  
+#  git remote add earbits_social git@github.com:earbits/earbits_social.git
+#  git fetch earbits_social
+#  git subtree add -P vendor/plugins/social --squash -m "adding vendor/plugins/social as subtree" earbits_social/master
+  
+  desc "add REPO", "adds a repo to a sub module"
+  method_options :plugin => :string, :branch => :string
+  def add(repo)
+    
+    branch_name = options[:branch] || parse_git(repo)
+    plugin_name = options[:plugin] || (branch_name =~ /^earbits_([a-zA-Z0-9_\-]+)/ && $1)
+  
+    
+    run "git remote add #{branch_name} #{repo}"
+    run "git fetch #{branch_name}"
+    run "git subtree add --squash --prefix=vendor/plugins/#{plugin_name} #{branch_name} master"
+  end
+  
+  
+  desc "pull BRANCH", "Updates a plugin sub module"
+  method_options :plugin => :string, :branch => :string
+  def pull(branch)
+    branch_name = options[:branch] || branch
+    plugin_name = options[:plugin] || (branch_name =~ /^earbits_([a-zA-Z0-9_\-]+)/ && $1)
+    
+    run "git subtree pull --squash --prefix=vendor/plugins/#{plugin_name} #{branch_name} master"
+  end
+  
+  desc "split BRANCH", "Splits changes to a plugin and pushes them to the upstream repo"
+  method_options :plugin => :string, :branch => :string, :since => :string
+  def split(branch)
+    branch_name = options[:branch] || branch
+    plugin_name = options[:plugin] || (branch_name =~ /^earbits_([a-zA-Z0-9_\-]+)/ && $1)
+    since_commit =  options[:since] || ""
+    
+    
+    run "git subtree split --prefix=vendor/plugins/#{plugin_name} #{since_commit} --rejoin --branch #{branch_name}-master"
+    run "git push #{branch_name} #{branch_name}-master:master"
+    run "git branch -D #{branch_name}-master"
+ 
+  end
+  
+  desc "extract BRANCH", "Extracts a plugin and pushes it to an upstream repo"
+  method_options :plugin => :string, :branch => :string, :since => :string
+  def split(repo)
+    branch_name = options[:branch] || parse_git(repo)
+    plugin_name = options[:plugin] || (branch_name =~ /^earbits_([a-zA-Z0-9_\-]+)/ && $1)
+    since_commit =  options[:since] || ""
+    
+    run "git remote add #{branch_name} #{repo}"
+    run "git fetch #{branch_name}"
+    
+    run "git subtree split --prefix=vendor/plugins/#{plugin_name} --branch #{branch_name}-master"
+    run "git push #{branch_name} #{branch_name}-master:master"
+    run "git branch -D #{branch_name}-master"
+ 
+  end
+  
+  
+  
+
+  private
+  
+  def parse_git(amazon_url)
+    if amazon_url =~ /git@github.com\:[a-zA-Z0-9_\-]*\/([a-zA-Z0-9_\-]+)\.git/
+      return $1
+    else
+      return nil
+    end
   end
 end
 
-App.start
+Subtree.start
