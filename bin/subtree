@@ -50,7 +50,7 @@ class Subtree < Thor
   
   desc "extract BRANCH", "Extracts a plugin and pushes it to an upstream repo"
   method_options :plugin => :string, :branch => :string, :since => :string
-  def split(repo)
+  def extract(repo)
     branch_name = options[:branch] || parse_git(repo)
     plugin_name = options[:plugin] || (branch_name =~ /^earbits_([a-zA-Z0-9_\-]+)/ && $1)
     since_commit =  options[:since] || ""
