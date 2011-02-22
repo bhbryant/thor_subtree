@@ -48,7 +48,7 @@ class Subtree < Thor
  
   end
   
-  desc "extract BRANCH", "Extracts a plugin and pushes it to an upstream repo"
+  desc "extract REPO", "Extracts a plugin and pushes it to an upstream repo"
   method_options :plugin => :string, :branch => :string, :since => :string
   def extract(repo)
     branch_name = options[:branch] || parse_git(repo)
@@ -58,7 +58,7 @@ class Subtree < Thor
     run "git remote add #{branch_name} #{repo}"
     run "git fetch #{branch_name}"
     
-    run "git subtree split --prefix=vendor/plugins/#{plugin_name} --branch #{branch_name}-master"
+    run "git subtree split --prefix=vendor/plugins/#{plugin_name} #{since_commit} --branch #{branch_name}-master"
     run "git push #{branch_name} #{branch_name}-master:master"
     run "git branch -D #{branch_name}-master"
  
