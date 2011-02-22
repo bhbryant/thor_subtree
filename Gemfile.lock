@@ -1,0 +1,17 @@
+PATH
+  remote: .
+  specs:
+    thor_subtree (0.0.1)
+      thor
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    thor (0.14.6)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  thor
+  thor_subtree!
