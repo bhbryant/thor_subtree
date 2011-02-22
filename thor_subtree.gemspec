@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Benjamin Bryant"]
   s.email       = [""]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{thor scripts}
+  s.description = %q{for managing git subtree}
 
   s.rubyforge_project = "thor_subtree"
 
